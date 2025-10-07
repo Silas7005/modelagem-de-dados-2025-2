@@ -128,7 +128,7 @@ SELECT
     v.Vitima_ID,
     1 AS Seq
 FROM CRIME_STAGE s
-INNER JOIN VITIMA v ON (
+INNER JOIN VICTIM v ON (
     (v.Vict_Age = CAST(CAST(s.Vict_Age AS DECIMAL(10,1)) AS SIGNED) OR (v.Vict_Age IS NULL AND (s.Vict_Age = '' OR s.Vict_Age IS NULL)))
     AND (v.Vict_Sex = s.Vict_Sex OR (v.Vict_Sex IS NULL AND (s.Vict_Sex = '' OR s.Vict_Sex IS NULL)))
     AND (v.Vict_Descent = s.Vict_Descent OR (v.Vict_Descent IS NULL AND (s.Vict_Descent = '' OR s.Vict_Descent IS NULL)))
@@ -147,7 +147,7 @@ SELECT
     l.Localidade_ID,
     1 AS Seq
 FROM CRIME_STAGE s
-INNER JOIN LOCALIDADE l ON (
+INNER JOIN LOCATION l ON (
     (l.LAT = CAST(s.LAT AS DECIMAL(10,6)) OR (l.LAT IS NULL AND (s.LAT = '' OR s.LAT IS NULL)))
     AND (l.LON = CAST(s.LON AS DECIMAL(10,6)) OR (l.LON IS NULL AND (s.LON = '' OR s.LON IS NULL)))
     AND l.Rpt_Dist_No = s.Rpt_Dist_No
