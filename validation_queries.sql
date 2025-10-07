@@ -19,19 +19,19 @@ SELECT
     'STATUS' AS Tabela, COUNT(*) AS Total_Registros FROM STATUS
 UNION ALL
 SELECT 
-    'ARMA' AS Tabela, COUNT(*) AS Total_Registros FROM ARMA
+    'WEAPON' AS Tabela, COUNT(*) AS Total_Registros FROM WEAPON
 UNION ALL
 SELECT 
-    'PREMISSA' AS Tabela, COUNT(*) AS Total_Registros FROM PREMISSA
+    'PREMISE' AS Tabela, COUNT(*) AS Total_Registros FROM PREMISE
 UNION ALL
 SELECT 
-    'INFRACAO_PENAL' AS Tabela, COUNT(*) AS Total_Registros FROM INFRACAO_PENAL
+    'CRIME_TYPE' AS Tabela, COUNT(*) AS Total_Registros FROM CRIME_TYPE
 UNION ALL
 SELECT 
-    'VITIMA' AS Tabela, COUNT(*) AS Total_Registros FROM VITIMA
+    'VICTIM' AS Tabela, COUNT(*) AS Total_Registros FROM VICTIM
 UNION ALL
 SELECT 
-    'LOCALIDADE' AS Tabela, COUNT(*) AS Total_Registros FROM LOCALIDADE
+    'LOCATION' AS Tabela, COUNT(*) AS Total_Registros FROM LOCATION
 UNION ALL
 SELECT 
     'CRIME' AS Tabela, COUNT(*) AS Total_Registros FROM CRIME
@@ -63,7 +63,7 @@ SELECT
     'Crimes com ARMA inválida' AS Verificacao,
     COUNT(*) AS Total_Registros
 FROM CRIME c
-LEFT JOIN ARMA a ON c.Weapon_Used_Cd_FK = a.Weapon_Used_Cd
+LEFT JOIN WEAPON a ON c.Weapon_Used_Cd_FK = a.Weapon_Used_Cd
 WHERE c.Weapon_Used_Cd_FK IS NOT NULL AND a.Weapon_Used_Cd IS NULL;
 
 -- Crimes com premissa inválida
@@ -71,7 +71,7 @@ SELECT
     'Crimes com PREMISSA inválida' AS Verificacao,
     COUNT(*) AS Total_Registros
 FROM CRIME c
-LEFT JOIN PREMISSA p ON c.Premis_Cd_FK = p.Premis_Cd
+LEFT JOIN PREMISE p ON c.Premis_Cd_FK = p.Premis_Cd
 WHERE c.Premis_Cd_FK IS NOT NULL AND p.Premis_Cd IS NULL;
 
 -- ============================================
@@ -95,7 +95,7 @@ SELECT
     tc.Crm_Cd_Desc,
     COUNT(*) AS Total_Ocorrencias
 FROM CRIME_CODIGO cc
-INNER JOIN INFRACAO_PENAL tc ON cc.Crm_Cd_FK = tc.Crm_Cd
+INNER JOIN CRIME_TYPE tc ON cc.Crm_Cd_FK = tc.Crm_Cd
 GROUP BY tc.Crm_Cd, tc.Crm_Cd_Desc
 ORDER BY Total_Ocorrencias DESC
 LIMIT 5;
@@ -106,7 +106,7 @@ SELECT
     COUNT(DISTINCT c.DR_NO) AS Total_Crimes
 FROM CRIME c
 INNER JOIN CRIME_LOCALIDADE cl ON c.DR_NO = cl.DR_NO_FK
-INNER JOIN LOCALIDADE l ON cl.Localidade_ID_FK = l.Localidade_ID
+INNER JOIN LOCATION l ON cl.Localidade_ID_FK = l.Localidade_ID
 GROUP BY l.AREA_NAME
 ORDER BY Total_Crimes DESC
 LIMIT 5;
@@ -121,7 +121,7 @@ SELECT
     END AS Sexo,
     COUNT(*) AS Total_Crimes
 FROM CRIME_VITIMA cv
-INNER JOIN VITIMA v ON cv.Vitima_ID_FK = v.Vitima_ID
+INNER JOIN VICTIM v ON cv.Vitima_ID_FK = v.Vitima_ID
 GROUP BY v.Vict_Sex
 ORDER BY Total_Crimes DESC;
 
@@ -144,14 +144,14 @@ SELECT
     a.Weapon_Desc AS Arma_Utilizada
 FROM CRIME c
 INNER JOIN STATUS s ON c.Status_FK = s.Status
-LEFT JOIN ARMA a ON c.Weapon_Used_Cd_FK = a.Weapon_Used_Cd
-LEFT JOIN PREMISSA p ON c.Premis_Cd_FK = p.Premis_Cd
+LEFT JOIN WEAPON a ON c.Weapon_Used_Cd_FK = a.Weapon_Used_Cd
+LEFT JOIN PREMISE p ON c.Premis_Cd_FK = p.Premis_Cd
 INNER JOIN CRIME_CODIGO cc ON c.DR_NO = cc.DR_NO_FK
-INNER JOIN INFRACAO_PENAL tc ON cc.Crm_Cd_FK = tc.Crm_Cd
+INNER JOIN CRIME_TYPE tc ON cc.Crm_Cd_FK = tc.Crm_Cd
 INNER JOIN CRIME_LOCALIDADE cl ON c.DR_NO = cl.DR_NO_FK
-INNER JOIN LOCALIDADE l ON cl.Localidade_ID_FK = l.Localidade_ID
+INNER JOIN LOCATION l ON cl.Localidade_ID_FK = l.Localidade_ID
 INNER JOIN CRIME_VITIMA cv ON c.DR_NO = cv.DR_NO_FK
-INNER JOIN VITIMA v ON cv.Vitima_ID_FK = v.Vitima_ID
+INNER JOIN VICTIM v ON cv.Vitima_ID_FK = v.Vitima_ID
 LIMIT 10;
 
 SELECT 'Validação concluída!' AS Resultado;

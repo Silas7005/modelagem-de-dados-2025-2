@@ -29,7 +29,7 @@ SELECT CONCAT('STATUS: ', COUNT(*), ' registros inseridos') AS Resultado FROM ST
 -- 2. Popular tabela ARMA (Weapon)
 -- ============================================
 -- ✅ CORRIGIDO: Converte VARCHAR → DECIMAL → INT
-INSERT IGNORE INTO ARMA (Weapon_Used_Cd, Weapon_Desc)
+INSERT IGNORE INTO WEAPON (Weapon_Used_Cd, Weapon_Desc)
 SELECT DISTINCT 
     CAST(CAST(NULLIF(Weapon_Used_Cd, '') AS DECIMAL(10,1)) AS SIGNED),
     Weapon_Desc
@@ -38,13 +38,13 @@ WHERE Weapon_Used_Cd IS NOT NULL
   AND Weapon_Used_Cd != ''
   AND CAST(NULLIF(Weapon_Used_Cd, '') AS DECIMAL(10,1)) != 0;
 
-SELECT CONCAT('ARMA: ', COUNT(*), ' registros inseridos') AS Resultado FROM ARMA;
+SELECT CONCAT('WEAPON: ', COUNT(*), ' registros inseridos') AS Resultado FROM WEAPON;
 
 -- ============================================
 -- 3. Popular tabela PREMISSA (Premise)
 -- ============================================
 -- MANTÉM DECIMAL: Premis_Cd aceita valores como 104.5
-INSERT IGNORE INTO PREMISSA (Premis_Cd, Premis_Desc)
+INSERT IGNORE INTO PREMISE (Premis_Cd, Premis_Desc)
 SELECT DISTINCT 
     CAST(NULLIF(Premis_Cd, '') AS DECIMAL(5,1)),
     Premis_Desc
@@ -53,13 +53,13 @@ WHERE Premis_Cd IS NOT NULL
   AND Premis_Cd != ''
   AND CAST(NULLIF(Premis_Cd, '') AS DECIMAL(5,1)) != 0;
 
-SELECT CONCAT('PREMISSA: ', COUNT(*), ' registros inseridos') AS Resultado FROM PREMISSA;
+SELECT CONCAT('PREMISE: ', COUNT(*), ' registros inseridos') AS Resultado FROM PREMISE;
 
 -- ============================================
 -- 4. Popular tabela INFRACAO_PENAL
 -- ============================================
 -- Primeiro, inserir o crime principal
-INSERT IGNORE INTO INFRACAO_PENAL (Crm_Cd, Crm_Cd_Desc, Part_1_2)
+INSERT IGNORE INTO CRIME_TYPE (Crm_Cd, Crm_Cd_Desc, Part_1_2)
 SELECT DISTINCT 
     Crm_Cd,
     Crm_Cd_Desc,
@@ -68,7 +68,7 @@ FROM CRIME_STAGE
 WHERE Crm_Cd IS NOT NULL AND Crm_Cd != 0;
 
 -- ✅ CORRIGIDO: Inserir crimes adicionais (Crm_Cd_1)
-INSERT IGNORE INTO INFRACAO_PENAL (Crm_Cd, Crm_Cd_Desc, Part_1_2)
+INSERT IGNORE INTO CRIME_TYPE (Crm_Cd, Crm_Cd_Desc, Part_1_2)
 SELECT DISTINCT 
     CAST(CAST(NULLIF(Crm_Cd_1, '') AS DECIMAL(10,1)) AS SIGNED),
     NULL,
@@ -79,7 +79,7 @@ WHERE Crm_Cd_1 IS NOT NULL
   AND CAST(NULLIF(Crm_Cd_1, '') AS DECIMAL(10,1)) != 0;
 
 -- ✅ CORRIGIDO: Inserir crimes adicionais (Crm_Cd_2)
-INSERT IGNORE INTO INFRACAO_PENAL (Crm_Cd, Crm_Cd_Desc, Part_1_2)
+INSERT IGNORE INTO CRIME_TYPE (Crm_Cd, Crm_Cd_Desc, Part_1_2)
 SELECT DISTINCT 
     CAST(CAST(NULLIF(Crm_Cd_2, '') AS DECIMAL(10,1)) AS SIGNED),
     NULL,
@@ -90,7 +90,7 @@ WHERE Crm_Cd_2 IS NOT NULL
   AND CAST(NULLIF(Crm_Cd_2, '') AS DECIMAL(10,1)) != 0;
 
 -- ✅ CORRIGIDO: Inserir crimes adicionais (Crm_Cd_3)
-INSERT IGNORE INTO INFRACAO_PENAL (Crm_Cd, Crm_Cd_Desc, Part_1_2)
+INSERT IGNORE INTO CRIME_TYPE (Crm_Cd, Crm_Cd_Desc, Part_1_2)
 SELECT DISTINCT 
     CAST(CAST(NULLIF(Crm_Cd_3, '') AS DECIMAL(10,1)) AS SIGNED),
     NULL,
@@ -101,7 +101,7 @@ WHERE Crm_Cd_3 IS NOT NULL
   AND CAST(NULLIF(Crm_Cd_3, '') AS DECIMAL(10,1)) != 0;
 
 -- ✅ CORRIGIDO: Inserir crimes adicionais (Crm_Cd_4)
-INSERT IGNORE INTO INFRACAO_PENAL (Crm_Cd, Crm_Cd_Desc, Part_1_2)
+INSERT IGNORE INTO CRIME_TYPE (Crm_Cd, Crm_Cd_Desc, Part_1_2)
 SELECT DISTINCT 
     CAST(CAST(NULLIF(Crm_Cd_4, '') AS DECIMAL(10,1)) AS SIGNED),
     NULL,
@@ -111,13 +111,13 @@ WHERE Crm_Cd_4 IS NOT NULL
   AND Crm_Cd_4 != ''
   AND CAST(NULLIF(Crm_Cd_4, '') AS DECIMAL(10,1)) != 0;
 
-SELECT CONCAT('INFRACAO_PENAL: ', COUNT(*), ' registros inseridos') AS Resultado FROM INFRACAO_PENAL;
+SELECT CONCAT('CRIME_TYPE: ', COUNT(*), ' registros inseridos') AS Resultado FROM CRIME_TYPE;
 
 -- ============================================
 -- 5. Popular tabela VITIMA
 -- ============================================
 -- ✅ CORRIGIDO: Inserir vítimas únicas
-INSERT INTO VITIMA (Vict_Age, Vict_Sex, Vict_Descent)
+INSERT INTO VICTIM (Vict_Age, Vict_Sex, Vict_Descent)
 SELECT DISTINCT 
     CASE 
         WHEN Vict_Age = '' OR Vict_Age IS NULL THEN NULL
@@ -127,13 +127,13 @@ SELECT DISTINCT
     NULLIF(Vict_Descent, '')
 FROM CRIME_STAGE;
 
-SELECT CONCAT('VITIMA: ', COUNT(*), ' registros inseridos') AS Resultado FROM VITIMA;
+SELECT CONCAT('VICTIM: ', COUNT(*), ' registros inseridos') AS Resultado FROM VICTIM;
 
 -- ============================================
 -- 6. Popular tabela LOCALIDADE
 -- ============================================
 -- Inserir localidades únicas (baseado em LAT, LON e Rpt_Dist_No)
-INSERT INTO LOCALIDADE (LOCATION, Cross_Street, LAT, LON, AREA, AREA_NAME, Rpt_Dist_No)
+INSERT INTO LOCATION (LOCATION, Cross_Street, LAT, LON, AREA, AREA_NAME, Rpt_Dist_No)
 SELECT DISTINCT 
     NULLIF(LOCATION, ''),
     NULLIF(Cross_Street, ''),
@@ -155,7 +155,7 @@ ON DUPLICATE KEY UPDATE
     AREA = VALUES(AREA),
     AREA_NAME = VALUES(AREA_NAME);
 
-SELECT CONCAT('LOCALIDADE: ', COUNT(*), ' registros inseridos') AS Resultado FROM LOCALIDADE;
+SELECT CONCAT('LOCATION: ', COUNT(*), ' registros inseridos') AS Resultado FROM LOCATION;
 
 -- ============================================
 -- Resumo Final
@@ -166,16 +166,16 @@ SELECT
     'STATUS' AS Tabela, COUNT(*) AS Total_Registros FROM STATUS
 UNION ALL
 SELECT 
-    'ARMA' AS Tabela, COUNT(*) AS Total_Registros FROM ARMA
+    'WEAPON' AS Tabela, COUNT(*) AS Total_Registros FROM WEAPON
 UNION ALL
 SELECT 
-    'PREMISSA' AS Tabela, COUNT(*) AS Total_Registros FROM PREMISSA
+    'PREMISE' AS Tabela, COUNT(*) AS Total_Registros FROM PREMISE
 UNION ALL
 SELECT 
-    'INFRACAO_PENAL' AS Tabela, COUNT(*) AS Total_Registros FROM INFRACAO_PENAL
+    'CRIME_TYPE' AS Tabela, COUNT(*) AS Total_Registros FROM CRIME_TYPE
 UNION ALL
 SELECT 
-    'VITIMA' AS Tabela, COUNT(*) AS Total_Registros FROM VITIMA
+    'VICTIM' AS Tabela, COUNT(*) AS Total_Registros FROM VICTIM
 UNION ALL
 SELECT 
-    'LOCALIDADE' AS Tabela, COUNT(*) AS Total_Registros FROM LOCALIDADE;
+    'LOCATION' AS Tabela, COUNT(*) AS Total_Registros FROM LOCATION;
