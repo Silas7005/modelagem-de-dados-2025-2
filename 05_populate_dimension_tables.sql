@@ -41,19 +41,19 @@ WHERE Weapon_Used_Cd IS NOT NULL
 SELECT CONCAT('WEAPON: ', COUNT(*), ' records inserted') AS Result FROM WEAPON;
 
 -- ============================================
--- 3. Populate PREMISE table
+-- 3. Populate LOCATION_TYPE table
 -- ============================================
--- KEEP DECIMAL: Premis_Cd accepts values like 104.5
-INSERT IGNORE INTO PREMISE (Premis_Cd, Premis_Desc)
+-- KEEP DECIMAL: Location_Type_Cd accepts values like 104.5
+INSERT IGNORE INTO LOCATION_TYPE (Location_Type_Cd, Location_Type_Desc)
 SELECT DISTINCT 
-    CAST(NULLIF(Premis_Cd, '') AS DECIMAL(5,1)),
-    Premis_Desc
+    CAST(NULLIF(Location_Type_Cd, '') AS DECIMAL(5,1)),
+    Location_Type_Desc
 FROM CRIME_STAGE
-WHERE Premis_Cd IS NOT NULL 
-  AND Premis_Cd != ''
-  AND CAST(NULLIF(Premis_Cd, '') AS DECIMAL(5,1)) != 0;
+WHERE Location_Type_Cd IS NOT NULL 
+  AND Location_Type_Cd != ''
+  AND CAST(NULLIF(Location_Type_Cd, '') AS DECIMAL(5,1)) != 0;
 
-SELECT CONCAT('PREMISE: ', COUNT(*), ' records inserted') AS Result FROM PREMISE;
+SELECT CONCAT('LOCATION_TYPE: ', COUNT(*), ' records inserted') AS Result FROM LOCATION_TYPE;
 
 -- ============================================
 -- 4. Populate CRIME_TYPE table
@@ -169,7 +169,7 @@ SELECT
     'WEAPON' AS Table_Name, COUNT(*) AS Total_Records FROM WEAPON
 UNION ALL
 SELECT 
-    'PREMISE' AS Table_Name, COUNT(*) AS Total_Records FROM PREMISE
+    'LOCATION_TYPE' AS Table_Name, COUNT(*) AS Total_Records FROM LOCATION_TYPE
 UNION ALL
 SELECT 
     'CRIME_TYPE' AS Table_Name, COUNT(*) AS Total_Records FROM CRIME_TYPE

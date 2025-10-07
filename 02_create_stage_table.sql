@@ -26,8 +26,8 @@ CREATE TABLE `CRIME_STAGE` (
   `Vict_Age` VARCHAR(10) NULL,
   `Vict_Sex` CHAR(1) NULL,
   `Vict_Descent` CHAR(1) NULL,
-  `Premis_Cd` VARCHAR(10) NULL,
-  `Premis_Desc` VARCHAR(150) NULL,
+  `Location_Type_Cd` VARCHAR(10) NULL,
+  `Location_Type_Desc` VARCHAR(150) NULL,
   `Weapon_Used_Cd` VARCHAR(10) NULL,
   `Weapon_Desc` VARCHAR(150) NULL,
   `Status` CHAR(2) NULL,
@@ -46,7 +46,7 @@ CREATE TABLE `CRIME_STAGE` (
 -- Indexes to improve performance during transformation
 CREATE INDEX idx_stage_status ON `CRIME_STAGE`(`Status`);
 CREATE INDEX idx_stage_weapon ON `CRIME_STAGE`(`Weapon_Used_Cd`);
-CREATE INDEX idx_stage_premis ON `CRIME_STAGE`(`Premis_Cd`);
+CREATE INDEX idx_stage_location_type ON `CRIME_STAGE`(`Location_Type_Cd`);
 CREATE INDEX idx_stage_crm_cd ON `CRIME_STAGE`(`Crm_Cd`);
 CREATE INDEX idx_stage_location ON `CRIME_STAGE`(`LAT`, `LON`);
 

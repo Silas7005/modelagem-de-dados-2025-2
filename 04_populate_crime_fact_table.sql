@@ -19,7 +19,7 @@ INSERT IGNORE INTO CRIME (
     Mocodes,
     Status_FK,
     Weapon_Used_Cd_FK,
-    Premis_Cd_FK
+    Location_Type_Cd_FK
 )
 SELECT DISTINCT
     s.DR_NO,
@@ -38,11 +38,11 @@ SELECT DISTINCT
         THEN NULL
         ELSE CAST(CAST(s.Weapon_Used_Cd AS DECIMAL(10,1)) AS SIGNED)
     END,
-    -- KEEP DECIMAL: Premis_Cd (DECIMAL 5,1) - accepts values like 104.5
+    -- KEEP DECIMAL: Location_Type_Cd (DECIMAL 5,1) - accepts values like 104.5
     CASE 
-        WHEN s.Premis_Cd = '' OR s.Premis_Cd IS NULL OR CAST(s.Premis_Cd AS DECIMAL) = 0 
+        WHEN s.Location_Type_Cd = '' OR s.Location_Type_Cd IS NULL OR CAST(s.Location_Type_Cd AS DECIMAL) = 0 
         THEN NULL
-        ELSE CAST(s.Premis_Cd AS DECIMAL(5,1))
+        ELSE CAST(s.Location_Type_Cd AS DECIMAL(5,1))
     END
 FROM CRIME_STAGE s
 -- ✅ FIXED: Ensure we only insert Status that exists in STATUS table
@@ -60,61 +60,66 @@ SELECT CONCAT('CRIME: ', COUNT(*), ' records inserted') AS Result FROM CRIME;
 -- 2. Populate CRIME_CODE table
 -- ============================================
 -- ✅ FIXED: Insert main crime code - only for DR_NO that exists in CRIME table
-INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK)
+INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK, Seq)
 SELECT 
     s.DR_NO,
-    s.Crm_Cd
+    s.Crm_Cd,
+    1 AS Seq
 FROM CRIME_STAGE s
 WHERE s.Crm_Cd IS NOT NULL AND s.Crm_Cd != 0
   AND EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO);
 
 -- ✅ FIXED: Insert additional crime code 1 - only for DR_NO that exists in CRIME table
-INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK)
+INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK, Seq)
 SELECT 
     s.DR_NO,
-    CAST(CAST(s.Crm_Cd_1 AS DECIMAL(10,1)) AS SIGNED)
+    CAST(CAST(s.Crm_Cd_1 AS DECIMAL(10,1)) AS SIGNED),
+    2 AS Seq
 FROM CRIME_STAGE s
 WHERE s.Crm_Cd_1 IS NOT NULL 
   AND s.Crm_Cd_1 != ''
   AND CAST(s.Crm_Cd_1 AS DECIMAL) != 0
   AND EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO)
-ON DUPLICATE KEY UPDATE DR_NO_FK = DR_NO_FK;
+ON DUPLICATE KEY UPDATE Seq = VALUES(Seq);
 
 -- ✅ FIXED: Insert additional crime code 2 - only for DR_NO that exists in CRIME table
-INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK)
+INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK, Seq)
 SELECT 
     s.DR_NO,
-    CAST(CAST(s.Crm_Cd_2 AS DECIMAL(10,1)) AS SIGNED)
+    CAST(CAST(s.Crm_Cd_2 AS DECIMAL(10,1)) AS SIGNED),
+    3 AS Seq
 FROM CRIME_STAGE s
 WHERE s.Crm_Cd_2 IS NOT NULL 
   AND s.Crm_Cd_2 != ''
   AND CAST(s.Crm_Cd_2 AS DECIMAL) != 0
   AND EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO)
-ON DUPLICATE KEY UPDATE DR_NO_FK = DR_NO_FK;
+ON DUPLICATE KEY UPDATE Seq = VALUES(Seq);
 
 -- ✅ FIXED: Insert additional crime code 3 - only for DR_NO that exists in CRIME table
-INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK)
+INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK, Seq)
 SELECT 
     s.DR_NO,
-    CAST(CAST(s.Crm_Cd_3 AS DECIMAL(10,1)) AS SIGNED)
+    CAST(CAST(s.Crm_Cd_3 AS DECIMAL(10,1)) AS SIGNED),
+    4 AS Seq
 FROM CRIME_STAGE s
 WHERE s.Crm_Cd_3 IS NOT NULL 
   AND s.Crm_Cd_3 != ''
   AND CAST(s.Crm_Cd_3 AS DECIMAL) != 0
   AND EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO)
-ON DUPLICATE KEY UPDATE DR_NO_FK = DR_NO_FK;
+ON DUPLICATE KEY UPDATE Seq = VALUES(Seq);
 
 -- ✅ FIXED: Insert additional crime code 4 - only for DR_NO that exists in CRIME table
-INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK)
+INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK, Seq)
 SELECT 
     s.DR_NO,
-    CAST(CAST(s.Crm_Cd_4 AS DECIMAL(10,1)) AS SIGNED)
+    CAST(CAST(s.Crm_Cd_4 AS DECIMAL(10,1)) AS SIGNED),
+    5 AS Seq
 FROM CRIME_STAGE s
 WHERE s.Crm_Cd_4 IS NOT NULL 
   AND s.Crm_Cd_4 != ''
   AND CAST(s.Crm_Cd_4 AS DECIMAL) != 0
   AND EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO)
-ON DUPLICATE KEY UPDATE DR_NO_FK = DR_NO_FK;
+ON DUPLICATE KEY UPDATE Seq = VALUES(Seq);
 
 SELECT CONCAT('CRIME_CODE: ', COUNT(*), ' records inserted') AS Result FROM CRIME_CODE;
 
@@ -122,11 +127,10 @@ SELECT CONCAT('CRIME_CODE: ', COUNT(*), ' records inserted') AS Result FROM CRIM
 -- 3. Populate CRIME_VICTIM table
 -- ============================================
 -- ✅ FIXED: JOIN with double CAST for Vict_Age - only for DR_NO that exists in CRIME table
-INSERT INTO CRIME_VICTIM (DR_NO_FK, Victim_ID_FK, Seq)
+INSERT INTO CRIME_VICTIM (DR_NO_FK, Victim_ID_FK)
 SELECT 
     s.DR_NO,
-    v.Victim_ID,
-    1 AS Seq
+    v.Victim_ID
 FROM CRIME_STAGE s
 INNER JOIN VICTIM v ON (
     (v.Vict_Age = CAST(CAST(s.Vict_Age AS DECIMAL(10,1)) AS SIGNED) OR (v.Vict_Age IS NULL AND (s.Vict_Age = '' OR s.Vict_Age IS NULL)))

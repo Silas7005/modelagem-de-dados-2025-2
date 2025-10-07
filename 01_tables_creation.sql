@@ -13,10 +13,10 @@ CREATE TABLE IF NOT EXISTS `WEAPON` (
   PRIMARY KEY (`Weapon_Used_Cd`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `PREMISE` (
-  `Premis_Cd` DECIMAL(5,1) NOT NULL,
-  `Premis_Desc` VARCHAR(150) NULL,
-  PRIMARY KEY (`Premis_Cd`)
+CREATE TABLE IF NOT EXISTS `LOCATION_TYPE` (
+  `Location_Type_Cd` DECIMAL(5,1) NOT NULL,
+  `Location_Type_Desc` VARCHAR(150) NULL,
+  PRIMARY KEY (`Location_Type_Cd`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `CRIME_TYPE` (
@@ -57,11 +57,11 @@ CREATE TABLE IF NOT EXISTS `CRIME` (
   `Mocodes` TEXT NULL,
   `Status_FK` CHAR(2) NOT NULL,
   `Weapon_Used_Cd_FK` INT NULL,
-  `Premis_Cd_FK` DECIMAL(5,1) NULL,
+  `Location_Type_Cd_FK` DECIMAL(5,1) NULL,
   PRIMARY KEY (`DR_NO`),
   INDEX `idx_crime_status` (`Status_FK`),
   INDEX `idx_crime_weapon` (`Weapon_Used_Cd_FK`),
-  INDEX `idx_crime_premis` (`Premis_Cd_FK`),
+  INDEX `idx_crime_location_type` (`Location_Type_Cd_FK`),
   INDEX `idx_crime_date_occ` (`DATE_OCC`),
   CONSTRAINT `fk_crime_status`
     FOREIGN KEY (`Status_FK`)
@@ -73,9 +73,9 @@ CREATE TABLE IF NOT EXISTS `CRIME` (
     REFERENCES `WEAPON` (`Weapon_Used_Cd`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_crime_premise`
-    FOREIGN KEY (`Premis_Cd_FK`)
-    REFERENCES `PREMISE` (`Premis_Cd`)
+  CONSTRAINT `fk_crime_location_type`
+    FOREIGN KEY (`Location_Type_Cd_FK`)
+    REFERENCES `LOCATION_TYPE` (`Location_Type_Cd`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -83,6 +83,7 @@ CREATE TABLE IF NOT EXISTS `CRIME` (
 CREATE TABLE IF NOT EXISTS `CRIME_CODE` (
   `DR_NO_FK` INT NOT NULL,
   `Crm_Cd_FK` INT NOT NULL,
+  `Seq` TINYINT NOT NULL,
   PRIMARY KEY (`DR_NO_FK`, `Crm_Cd_FK`),
   INDEX `idx_crime_code_crm` (`Crm_Cd_FK`),
   CONSTRAINT `fk_crime_code_crime`
@@ -118,7 +119,6 @@ CREATE TABLE IF NOT EXISTS `CRIME_LOCATION` (
 CREATE TABLE IF NOT EXISTS `CRIME_VICTIM` (
   `DR_NO_FK` INT NOT NULL,
   `Victim_ID_FK` INT NOT NULL,
-  `Seq` TINYINT NOT NULL,
   PRIMARY KEY (`DR_NO_FK`, `Victim_ID_FK`),
   INDEX `idx_crime_victim_vict` (`Victim_ID_FK`),
   CONSTRAINT `fk_crime_victim_crime`

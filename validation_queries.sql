@@ -22,7 +22,7 @@ SELECT
     'WEAPON' AS Table_Name, COUNT(*) AS Total_Records FROM WEAPON
 UNION ALL
 SELECT 
-    'PREMISE' AS Table_Name, COUNT(*) AS Total_Records FROM PREMISE
+    'LOCATION_TYPE' AS Table_Name, COUNT(*) AS Total_Records FROM LOCATION_TYPE
 UNION ALL
 SELECT 
     'CRIME_TYPE' AS Table_Name, COUNT(*) AS Total_Records FROM CRIME_TYPE
@@ -66,13 +66,13 @@ FROM CRIME c
 LEFT JOIN WEAPON a ON c.Weapon_Used_Cd_FK = a.Weapon_Used_Cd
 WHERE c.Weapon_Used_Cd_FK IS NOT NULL AND a.Weapon_Used_Cd IS NULL;
 
--- Crimes with invalid premise
+-- Crimes with invalid location type
 SELECT 
-    'Crimes with invalid PREMISE' AS Check_Name,
+    'Crimes with invalid LOCATION_TYPE' AS Check_Name,
     COUNT(*) AS Total_Records
 FROM CRIME c
-LEFT JOIN PREMISE p ON c.Premis_Cd_FK = p.Premis_Cd
-WHERE c.Premis_Cd_FK IS NOT NULL AND p.Premis_Cd IS NULL;
+LEFT JOIN LOCATION_TYPE p ON c.Location_Type_Cd_FK = p.Location_Type_Cd
+WHERE c.Location_Type_Cd_FK IS NOT NULL AND p.Location_Type_Cd IS NULL;
 
 -- ============================================
 -- 3. Data analysis
@@ -138,14 +138,14 @@ SELECT
     tc.Crm_Cd_Desc AS Crime_Type,
     l.AREA_NAME AS Area,
     l.LOCATION AS Location,
-    p.Premis_Desc AS Premise_Type,
+    p.Location_Type_Desc AS Location_Type,
     v.Vict_Age AS Victim_Age,
     v.Vict_Sex AS Victim_Sex,
     a.Weapon_Desc AS Weapon_Used
 FROM CRIME c
 INNER JOIN STATUS s ON c.Status_FK = s.Status
 LEFT JOIN WEAPON a ON c.Weapon_Used_Cd_FK = a.Weapon_Used_Cd
-LEFT JOIN PREMISE p ON c.Premis_Cd_FK = p.Premis_Cd
+LEFT JOIN LOCATION_TYPE p ON c.Location_Type_Cd_FK = p.Location_Type_Cd
 INNER JOIN CRIME_CODE cc ON c.DR_NO = cc.DR_NO_FK
 INNER JOIN CRIME_TYPE tc ON cc.Crm_Cd_FK = tc.Crm_Cd
 INNER JOIN CRIME_LOCATION cl ON c.DR_NO = cl.DR_NO_FK
