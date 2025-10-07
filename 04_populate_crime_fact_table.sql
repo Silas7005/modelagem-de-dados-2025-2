@@ -1,16 +1,16 @@
 -- ============================================
--- Script 04: Popular Tabela Fato CRIME
+-- Script 04: Populate CRIME Fact Table
 -- ============================================
--- Este script popula a tabela principal CRIME e suas
--- tabelas de relacionamento
+-- This script populates the main CRIME table and its
+-- relationship tables
 -- ============================================
 
 USE `DB_CRIMES_LA`;
 
 -- ============================================
--- 1. Popular tabela CRIME
+-- 1. Populate CRIME table
 -- ============================================
--- ✅ CORRIGIDO: Usar INSERT IGNORE para evitar erros de chave duplicada
+-- ✅ FIXED: Use INSERT IGNORE to avoid duplicate key errors
 INSERT IGNORE INTO CRIME (
     DR_NO,
     Date_Rptd,
@@ -27,25 +27,25 @@ SELECT DISTINCT
     STR_TO_DATE(s.DATE_OCC, '%m/%d/%Y %h:%i:%s %p'),
     SEC_TO_TIME(CAST(s.TIME_OCC AS UNSIGNED) * 60),
     NULLIF(s.Mocodes, ''),
-    -- ✅ CORRIGIDO: Status_FK - só insere se existir na tabela STATUS
+    -- ✅ FIXED: Status_FK - only insert if exists in STATUS table
     CASE 
         WHEN s.Status IS NULL OR s.Status = '' THEN 'UN'  -- Default status for unknown/empty
         ELSE s.Status
     END,
-    -- ✅ CORRIGIDO: Weapon_Used_Cd (INT) - CAST duplo
+    -- ✅ FIXED: Weapon_Used_Cd (INT) - double CAST
     CASE 
         WHEN s.Weapon_Used_Cd = '' OR s.Weapon_Used_Cd IS NULL OR CAST(s.Weapon_Used_Cd AS DECIMAL) = 0 
         THEN NULL
         ELSE CAST(CAST(s.Weapon_Used_Cd AS DECIMAL(10,1)) AS SIGNED)
     END,
-    -- MANTÉM DECIMAL: Premis_Cd (DECIMAL 5,1) - aceita valores como 104.5
+    -- KEEP DECIMAL: Premis_Cd (DECIMAL 5,1) - accepts values like 104.5
     CASE 
         WHEN s.Premis_Cd = '' OR s.Premis_Cd IS NULL OR CAST(s.Premis_Cd AS DECIMAL) = 0 
         THEN NULL
         ELSE CAST(s.Premis_Cd AS DECIMAL(5,1))
     END
 FROM CRIME_STAGE s
--- ✅ CORRIGIDO: Garantir que só inserimos Status que existem na tabela STATUS
+-- ✅ FIXED: Ensure we only insert Status that exists in STATUS table
 WHERE EXISTS (
     SELECT 1 FROM STATUS st 
     WHERE st.Status = CASE 
@@ -54,13 +54,13 @@ WHERE EXISTS (
     END
 );
 
-SELECT CONCAT('CRIME: ', COUNT(*), ' registros inseridos') AS Resultado FROM CRIME;
+SELECT CONCAT('CRIME: ', COUNT(*), ' records inserted') AS Result FROM CRIME;
 
 -- ============================================
--- 2. Popular tabela CRIME_CODIGO
+-- 2. Populate CRIME_CODE table
 -- ============================================
--- ✅ CORRIGIDO: Inserir o código de crime principal - só para DR_NO que existem na tabela CRIME
-INSERT INTO CRIME_CODIGO (DR_NO_FK, Crm_Cd_FK)
+-- ✅ FIXED: Insert main crime code - only for DR_NO that exists in CRIME table
+INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK)
 SELECT 
     s.DR_NO,
     s.Crm_Cd
@@ -68,8 +68,8 @@ FROM CRIME_STAGE s
 WHERE s.Crm_Cd IS NOT NULL AND s.Crm_Cd != 0
   AND EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO);
 
--- ✅ CORRIGIDO: Inserir código de crime adicional 1 - só para DR_NO que existem na tabela CRIME
-INSERT INTO CRIME_CODIGO (DR_NO_FK, Crm_Cd_FK)
+-- ✅ FIXED: Insert additional crime code 1 - only for DR_NO that exists in CRIME table
+INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK)
 SELECT 
     s.DR_NO,
     CAST(CAST(s.Crm_Cd_1 AS DECIMAL(10,1)) AS SIGNED)
@@ -80,8 +80,8 @@ WHERE s.Crm_Cd_1 IS NOT NULL
   AND EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO)
 ON DUPLICATE KEY UPDATE DR_NO_FK = DR_NO_FK;
 
--- ✅ CORRIGIDO: Inserir código de crime adicional 2 - só para DR_NO que existem na tabela CRIME
-INSERT INTO CRIME_CODIGO (DR_NO_FK, Crm_Cd_FK)
+-- ✅ FIXED: Insert additional crime code 2 - only for DR_NO that exists in CRIME table
+INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK)
 SELECT 
     s.DR_NO,
     CAST(CAST(s.Crm_Cd_2 AS DECIMAL(10,1)) AS SIGNED)
@@ -92,8 +92,8 @@ WHERE s.Crm_Cd_2 IS NOT NULL
   AND EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO)
 ON DUPLICATE KEY UPDATE DR_NO_FK = DR_NO_FK;
 
--- ✅ CORRIGIDO: Inserir código de crime adicional 3 - só para DR_NO que existem na tabela CRIME
-INSERT INTO CRIME_CODIGO (DR_NO_FK, Crm_Cd_FK)
+-- ✅ FIXED: Insert additional crime code 3 - only for DR_NO that exists in CRIME table
+INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK)
 SELECT 
     s.DR_NO,
     CAST(CAST(s.Crm_Cd_3 AS DECIMAL(10,1)) AS SIGNED)
@@ -104,8 +104,8 @@ WHERE s.Crm_Cd_3 IS NOT NULL
   AND EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO)
 ON DUPLICATE KEY UPDATE DR_NO_FK = DR_NO_FK;
 
--- ✅ CORRIGIDO: Inserir código de crime adicional 4 - só para DR_NO que existem na tabela CRIME
-INSERT INTO CRIME_CODIGO (DR_NO_FK, Crm_Cd_FK)
+-- ✅ FIXED: Insert additional crime code 4 - only for DR_NO that exists in CRIME table
+INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK)
 SELECT 
     s.DR_NO,
     CAST(CAST(s.Crm_Cd_4 AS DECIMAL(10,1)) AS SIGNED)
@@ -116,16 +116,16 @@ WHERE s.Crm_Cd_4 IS NOT NULL
   AND EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO)
 ON DUPLICATE KEY UPDATE DR_NO_FK = DR_NO_FK;
 
-SELECT CONCAT('CRIME_CODIGO: ', COUNT(*), ' registros inseridos') AS Resultado FROM CRIME_CODIGO;
+SELECT CONCAT('CRIME_CODE: ', COUNT(*), ' records inserted') AS Result FROM CRIME_CODE;
 
 -- ============================================
--- 3. Popular tabela CRIME_VITIMA
+-- 3. Populate CRIME_VICTIM table
 -- ============================================
--- ✅ CORRIGIDO: JOIN com CAST duplo para Vict_Age - só para DR_NO que existem na tabela CRIME
-INSERT INTO CRIME_VITIMA (DR_NO_FK, Vitima_ID_FK, Seq)
+-- ✅ FIXED: JOIN with double CAST for Vict_Age - only for DR_NO that exists in CRIME table
+INSERT INTO CRIME_VICTIM (DR_NO_FK, Victim_ID_FK, Seq)
 SELECT 
     s.DR_NO,
-    v.Vitima_ID,
+    v.Victim_ID,
     1 AS Seq
 FROM CRIME_STAGE s
 INNER JOIN VICTIM v ON (
@@ -135,16 +135,16 @@ INNER JOIN VICTIM v ON (
 )
 WHERE EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO);
 
-SELECT CONCAT('CRIME_VITIMA: ', COUNT(*), ' registros inseridos') AS Resultado FROM CRIME_VITIMA;
+SELECT CONCAT('CRIME_VICTIM: ', COUNT(*), ' records inserted') AS Result FROM CRIME_VICTIM;
 
 -- ============================================
--- 4. Popular tabela CRIME_LOCALIDADE
+-- 4. Populate CRIME_LOCATION table
 -- ============================================
--- ✅ CORRIGIDO: Popular tabela CRIME_LOCALIDADE - só para DR_NO que existem na tabela CRIME
-INSERT INTO CRIME_LOCALIDADE (DR_NO_FK, Localidade_ID_FK, Seq)
+-- ✅ FIXED: Populate CRIME_LOCATION table - only for DR_NO that exists in CRIME table
+INSERT INTO CRIME_LOCATION (DR_NO_FK, Location_ID_FK, Seq)
 SELECT 
     s.DR_NO,
-    l.Localidade_ID,
+    l.Location_ID,
     1 AS Seq
 FROM CRIME_STAGE s
 INNER JOIN LOCATION l ON (
@@ -154,21 +154,21 @@ INNER JOIN LOCATION l ON (
 )
 WHERE EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO);
 
-SELECT CONCAT('CRIME_LOCALIDADE: ', COUNT(*), ' registros inseridos') AS Resultado FROM CRIME_LOCALIDADE;
+SELECT CONCAT('CRIME_LOCATION: ', COUNT(*), ' records inserted') AS Result FROM CRIME_LOCATION;
 
 -- ============================================
--- Resumo Final
+-- Final Summary
 -- ============================================
-SELECT 'Tabela CRIME e relacionamentos foram populados com sucesso!' AS Resultado;
+SELECT 'CRIME table and relationships populated successfully!' AS Result;
 
 SELECT 
-    'CRIME' AS Tabela, COUNT(*) AS Total_Registros FROM CRIME
+    'CRIME' AS Table_Name, COUNT(*) AS Total_Records FROM CRIME
 UNION ALL
 SELECT 
-    'CRIME_CODIGO' AS Tabela, COUNT(*) AS Total_Registros FROM CRIME_CODIGO
+    'CRIME_CODE' AS Table_Name, COUNT(*) AS Total_Records FROM CRIME_CODE
 UNION ALL
 SELECT 
-    'CRIME_VITIMA' AS Tabela, COUNT(*) AS Total_Registros FROM CRIME_VITIMA
+    'CRIME_VICTIM' AS Table_Name, COUNT(*) AS Total_Records FROM CRIME_VICTIM
 UNION ALL
 SELECT 
-    'CRIME_LOCALIDADE' AS Tabela, COUNT(*) AS Total_Registros FROM CRIME_LOCALIDADE;
+    'CRIME_LOCATION' AS Table_Name, COUNT(*) AS Total_Records FROM CRIME_LOCATION;

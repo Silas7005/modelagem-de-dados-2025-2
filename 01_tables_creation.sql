@@ -27,16 +27,16 @@ CREATE TABLE IF NOT EXISTS `CRIME_TYPE` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `VICTIM` (
-  `Vitima_ID` INT NOT NULL AUTO_INCREMENT,
+  `Victim_ID` INT NOT NULL AUTO_INCREMENT,
   `Vict_Age` SMALLINT NULL,
   `Vict_Sex` CHAR(1) NULL,
   `Vict_Descent` CHAR(1) NULL,
-  PRIMARY KEY (`Vitima_ID`),
-  INDEX `idx_vitima_lookup` (`Vict_Age`, `Vict_Sex`, `Vict_Descent`)
+  PRIMARY KEY (`Victim_ID`),
+  INDEX `idx_victim_lookup` (`Vict_Age`, `Vict_Sex`, `Vict_Descent`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `LOCATION` (
-  `Localidade_ID` INT NOT NULL AUTO_INCREMENT,
+  `Location_ID` INT NOT NULL AUTO_INCREMENT,
   `LOCATION` VARCHAR(100) NULL,
   `Cross_Street` VARCHAR(100) NULL,
   `LAT` DECIMAL(10,6) NULL,
@@ -44,8 +44,8 @@ CREATE TABLE IF NOT EXISTS `LOCATION` (
   `AREA` INT NOT NULL,
   `AREA_NAME` VARCHAR(50) NULL,
   `Rpt_Dist_No` INT NOT NULL,
-  PRIMARY KEY (`Localidade_ID`),
-  UNIQUE INDEX `idx_localizacao_unica` (`LAT`, `LON`, `Rpt_Dist_No`),
+  PRIMARY KEY (`Location_ID`),
+  UNIQUE INDEX `idx_location_unique` (`LAT`, `LON`, `Rpt_Dist_No`),
   INDEX `idx_area` (`AREA`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -80,55 +80,55 @@ CREATE TABLE IF NOT EXISTS `CRIME` (
     ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `CRIME_CODIGO` (
+CREATE TABLE IF NOT EXISTS `CRIME_CODE` (
   `DR_NO_FK` INT NOT NULL,
   `Crm_Cd_FK` INT NOT NULL,
   PRIMARY KEY (`DR_NO_FK`, `Crm_Cd_FK`),
-  INDEX `idx_crime_codigo_crm` (`Crm_Cd_FK`),
-  CONSTRAINT `fk_crime_codigo_crime`
+  INDEX `idx_crime_code_crm` (`Crm_Cd_FK`),
+  CONSTRAINT `fk_crime_code_crime`
     FOREIGN KEY (`DR_NO_FK`)
     REFERENCES `CRIME` (`DR_NO`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_codigo_adicional_cd`
+  CONSTRAINT `fk_crime_code_type`
     FOREIGN KEY (`Crm_Cd_FK`)
     REFERENCES `CRIME_TYPE` (`Crm_Cd`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `CRIME_LOCALIDADE` (
+CREATE TABLE IF NOT EXISTS `CRIME_LOCATION` (
   `DR_NO_FK` INT NOT NULL,
-  `Localidade_ID_FK` INT NOT NULL,
+  `Location_ID_FK` INT NOT NULL,
   `Seq` TINYINT NOT NULL,
-  PRIMARY KEY (`DR_NO_FK`, `Localidade_ID_FK`),
-  INDEX `idx_crime_localidade_loc` (`Localidade_ID_FK`),
-  CONSTRAINT `fk_crime_localidade_crime`
+  PRIMARY KEY (`DR_NO_FK`, `Location_ID_FK`),
+  INDEX `idx_crime_location_loc` (`Location_ID_FK`),
+  CONSTRAINT `fk_crime_location_crime`
     FOREIGN KEY (`DR_NO_FK`)
     REFERENCES `CRIME` (`DR_NO`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_crime_localidade_localidade`
-    FOREIGN KEY (`Localidade_ID_FK`)
-    REFERENCES `LOCATION` (`Localidade_ID`)
+  CONSTRAINT `fk_crime_location_location`
+    FOREIGN KEY (`Location_ID_FK`)
+    REFERENCES `LOCATION` (`Location_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `CRIME_VITIMA` (
+CREATE TABLE IF NOT EXISTS `CRIME_VICTIM` (
   `DR_NO_FK` INT NOT NULL,
-  `Vitima_ID_FK` INT NOT NULL,
+  `Victim_ID_FK` INT NOT NULL,
   `Seq` TINYINT NOT NULL,
-  PRIMARY KEY (`DR_NO_FK`, `Vitima_ID_FK`),
-  INDEX `idx_crime_vitima_vit` (`Vitima_ID_FK`),
-  CONSTRAINT `fk_crime_vitima_crime`
+  PRIMARY KEY (`DR_NO_FK`, `Victim_ID_FK`),
+  INDEX `idx_crime_victim_vict` (`Victim_ID_FK`),
+  CONSTRAINT `fk_crime_victim_crime`
     FOREIGN KEY (`DR_NO_FK`)
     REFERENCES `CRIME` (`DR_NO`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_crime_vitima_vitima`
-    FOREIGN KEY (`Vitima_ID_FK`)
-    REFERENCES `VICTIM` (`Vitima_ID`)
+  CONSTRAINT `fk_crime_victim_victim`
+    FOREIGN KEY (`Victim_ID_FK`)
+    REFERENCES `VICTIM` (`Victim_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

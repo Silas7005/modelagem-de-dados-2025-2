@@ -1,16 +1,16 @@
 -- ============================================
--- Script 01: Criação da Tabela Stage
+-- Script 01: Stage Table Creation
 -- ============================================
--- Este script cria uma tabela temporária que receberá
--- os dados brutos do arquivo CSV antes da normalização
+-- This script creates a temporary table that will receive
+-- the raw data from the CSV file before normalization
 -- ============================================
 
 USE `DB_CRIMES_LA`;
 
--- Remove a tabela stage se já existir
+-- Remove stage table if it already exists
 DROP TABLE IF EXISTS `CRIME_STAGE`;
 
--- Cria a tabela stage com a mesma estrutura do CSV
+-- Create stage table with the same structure as the CSV
 CREATE TABLE `CRIME_STAGE` (
   `DR_NO` INT NOT NULL,
   `Date_Rptd` VARCHAR(50) NULL,
@@ -43,12 +43,12 @@ CREATE TABLE `CRIME_STAGE` (
   PRIMARY KEY (`DR_NO`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Índices para melhorar a performance durante a transformação
+-- Indexes to improve performance during transformation
 CREATE INDEX idx_stage_status ON `CRIME_STAGE`(`Status`);
 CREATE INDEX idx_stage_weapon ON `CRIME_STAGE`(`Weapon_Used_Cd`);
 CREATE INDEX idx_stage_premis ON `CRIME_STAGE`(`Premis_Cd`);
 CREATE INDEX idx_stage_crm_cd ON `CRIME_STAGE`(`Crm_Cd`);
 CREATE INDEX idx_stage_location ON `CRIME_STAGE`(`LAT`, `LON`);
 
-SELECT 'Tabela CRIME_STAGE criada com sucesso!' AS Resultado;
+SELECT 'CRIME_STAGE table created successfully!' AS Result;
 

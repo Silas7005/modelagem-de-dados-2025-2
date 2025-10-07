@@ -1,16 +1,16 @@
 -- ============================================
--- Script 03: Popular Tabelas de Dimensão
+-- Script 03: Populate Dimension Tables
 -- ============================================
--- Este script popula as tabelas de dimensão (lookup tables)
--- a partir dos dados da tabela CRIME_STAGE
+-- This script populates the dimension tables (lookup tables)
+-- from the CRIME_STAGE table data
 -- ============================================
 
 USE `DB_CRIMES_LA`;
 
 -- ============================================
--- 1. Popular tabela STATUS
+-- 1. Populate STATUS table
 -- ============================================
--- ✅ CORRIGIDO: Inserir status válidos
+-- ✅ FIXED: Insert valid statuses
 INSERT IGNORE INTO STATUS (Status, Status_Desc)
 SELECT DISTINCT 
     Status,
@@ -19,16 +19,16 @@ FROM CRIME_STAGE
 WHERE Status IS NOT NULL 
   AND Status != '';
 
--- ✅ CORRIGIDO: Inserir status padrão para valores vazios/NULL
+-- ✅ FIXED: Insert default status for empty/NULL values
 INSERT IGNORE INTO STATUS (Status, Status_Desc)
 VALUES ('UN', 'Unknown/Empty Status');
 
-SELECT CONCAT('STATUS: ', COUNT(*), ' registros inseridos') AS Resultado FROM STATUS;
+SELECT CONCAT('STATUS: ', COUNT(*), ' records inserted') AS Result FROM STATUS;
 
 -- ============================================
--- 2. Popular tabela ARMA (Weapon)
+-- 2. Populate WEAPON table
 -- ============================================
--- ✅ CORRIGIDO: Converte VARCHAR → DECIMAL → INT
+-- ✅ FIXED: Convert VARCHAR → DECIMAL → INT
 INSERT IGNORE INTO WEAPON (Weapon_Used_Cd, Weapon_Desc)
 SELECT DISTINCT 
     CAST(CAST(NULLIF(Weapon_Used_Cd, '') AS DECIMAL(10,1)) AS SIGNED),
@@ -38,12 +38,12 @@ WHERE Weapon_Used_Cd IS NOT NULL
   AND Weapon_Used_Cd != ''
   AND CAST(NULLIF(Weapon_Used_Cd, '') AS DECIMAL(10,1)) != 0;
 
-SELECT CONCAT('WEAPON: ', COUNT(*), ' registros inseridos') AS Resultado FROM WEAPON;
+SELECT CONCAT('WEAPON: ', COUNT(*), ' records inserted') AS Result FROM WEAPON;
 
 -- ============================================
--- 3. Popular tabela PREMISSA (Premise)
+-- 3. Populate PREMISE table
 -- ============================================
--- MANTÉM DECIMAL: Premis_Cd aceita valores como 104.5
+-- KEEP DECIMAL: Premis_Cd accepts values like 104.5
 INSERT IGNORE INTO PREMISE (Premis_Cd, Premis_Desc)
 SELECT DISTINCT 
     CAST(NULLIF(Premis_Cd, '') AS DECIMAL(5,1)),
@@ -53,12 +53,12 @@ WHERE Premis_Cd IS NOT NULL
   AND Premis_Cd != ''
   AND CAST(NULLIF(Premis_Cd, '') AS DECIMAL(5,1)) != 0;
 
-SELECT CONCAT('PREMISE: ', COUNT(*), ' registros inseridos') AS Resultado FROM PREMISE;
+SELECT CONCAT('PREMISE: ', COUNT(*), ' records inserted') AS Result FROM PREMISE;
 
 -- ============================================
--- 4. Popular tabela INFRACAO_PENAL
+-- 4. Populate CRIME_TYPE table
 -- ============================================
--- Primeiro, inserir o crime principal
+-- First, insert the main crime
 INSERT IGNORE INTO CRIME_TYPE (Crm_Cd, Crm_Cd_Desc, Part_1_2)
 SELECT DISTINCT 
     Crm_Cd,
@@ -67,7 +67,7 @@ SELECT DISTINCT
 FROM CRIME_STAGE
 WHERE Crm_Cd IS NOT NULL AND Crm_Cd != 0;
 
--- ✅ CORRIGIDO: Inserir crimes adicionais (Crm_Cd_1)
+-- ✅ FIXED: Insert additional crimes (Crm_Cd_1)
 INSERT IGNORE INTO CRIME_TYPE (Crm_Cd, Crm_Cd_Desc, Part_1_2)
 SELECT DISTINCT 
     CAST(CAST(NULLIF(Crm_Cd_1, '') AS DECIMAL(10,1)) AS SIGNED),
@@ -78,7 +78,7 @@ WHERE Crm_Cd_1 IS NOT NULL
   AND Crm_Cd_1 != ''
   AND CAST(NULLIF(Crm_Cd_1, '') AS DECIMAL(10,1)) != 0;
 
--- ✅ CORRIGIDO: Inserir crimes adicionais (Crm_Cd_2)
+-- ✅ FIXED: Insert additional crimes (Crm_Cd_2)
 INSERT IGNORE INTO CRIME_TYPE (Crm_Cd, Crm_Cd_Desc, Part_1_2)
 SELECT DISTINCT 
     CAST(CAST(NULLIF(Crm_Cd_2, '') AS DECIMAL(10,1)) AS SIGNED),
@@ -89,7 +89,7 @@ WHERE Crm_Cd_2 IS NOT NULL
   AND Crm_Cd_2 != ''
   AND CAST(NULLIF(Crm_Cd_2, '') AS DECIMAL(10,1)) != 0;
 
--- ✅ CORRIGIDO: Inserir crimes adicionais (Crm_Cd_3)
+-- ✅ FIXED: Insert additional crimes (Crm_Cd_3)
 INSERT IGNORE INTO CRIME_TYPE (Crm_Cd, Crm_Cd_Desc, Part_1_2)
 SELECT DISTINCT 
     CAST(CAST(NULLIF(Crm_Cd_3, '') AS DECIMAL(10,1)) AS SIGNED),
@@ -100,7 +100,7 @@ WHERE Crm_Cd_3 IS NOT NULL
   AND Crm_Cd_3 != ''
   AND CAST(NULLIF(Crm_Cd_3, '') AS DECIMAL(10,1)) != 0;
 
--- ✅ CORRIGIDO: Inserir crimes adicionais (Crm_Cd_4)
+-- ✅ FIXED: Insert additional crimes (Crm_Cd_4)
 INSERT IGNORE INTO CRIME_TYPE (Crm_Cd, Crm_Cd_Desc, Part_1_2)
 SELECT DISTINCT 
     CAST(CAST(NULLIF(Crm_Cd_4, '') AS DECIMAL(10,1)) AS SIGNED),
@@ -111,12 +111,12 @@ WHERE Crm_Cd_4 IS NOT NULL
   AND Crm_Cd_4 != ''
   AND CAST(NULLIF(Crm_Cd_4, '') AS DECIMAL(10,1)) != 0;
 
-SELECT CONCAT('CRIME_TYPE: ', COUNT(*), ' registros inseridos') AS Resultado FROM CRIME_TYPE;
+SELECT CONCAT('CRIME_TYPE: ', COUNT(*), ' records inserted') AS Result FROM CRIME_TYPE;
 
 -- ============================================
--- 5. Popular tabela VITIMA
+-- 5. Populate VICTIM table
 -- ============================================
--- ✅ CORRIGIDO: Inserir vítimas únicas
+-- ✅ FIXED: Insert unique victims
 INSERT INTO VICTIM (Vict_Age, Vict_Sex, Vict_Descent)
 SELECT DISTINCT 
     CASE 
@@ -127,12 +127,12 @@ SELECT DISTINCT
     NULLIF(Vict_Descent, '')
 FROM CRIME_STAGE;
 
-SELECT CONCAT('VICTIM: ', COUNT(*), ' registros inseridos') AS Resultado FROM VICTIM;
+SELECT CONCAT('VICTIM: ', COUNT(*), ' records inserted') AS Result FROM VICTIM;
 
 -- ============================================
--- 6. Popular tabela LOCALIDADE
+-- 6. Populate LOCATION table
 -- ============================================
--- Inserir localidades únicas (baseado em LAT, LON e Rpt_Dist_No)
+-- Insert unique locations (based on LAT, LON and Rpt_Dist_No)
 INSERT INTO LOCATION (LOCATION, Cross_Street, LAT, LON, AREA, AREA_NAME, Rpt_Dist_No)
 SELECT DISTINCT 
     NULLIF(LOCATION, ''),
@@ -155,27 +155,27 @@ ON DUPLICATE KEY UPDATE
     AREA = VALUES(AREA),
     AREA_NAME = VALUES(AREA_NAME);
 
-SELECT CONCAT('LOCATION: ', COUNT(*), ' registros inseridos') AS Resultado FROM LOCATION;
+SELECT CONCAT('LOCATION: ', COUNT(*), ' records inserted') AS Result FROM LOCATION;
 
 -- ============================================
--- Resumo Final
+-- Final Summary
 -- ============================================
-SELECT 'Todas as tabelas de dimensão foram populadas com sucesso!' AS Resultado;
+SELECT 'All dimension tables populated successfully!' AS Result;
 
 SELECT 
-    'STATUS' AS Tabela, COUNT(*) AS Total_Registros FROM STATUS
+    'STATUS' AS Table_Name, COUNT(*) AS Total_Records FROM STATUS
 UNION ALL
 SELECT 
-    'WEAPON' AS Tabela, COUNT(*) AS Total_Registros FROM WEAPON
+    'WEAPON' AS Table_Name, COUNT(*) AS Total_Records FROM WEAPON
 UNION ALL
 SELECT 
-    'PREMISE' AS Tabela, COUNT(*) AS Total_Registros FROM PREMISE
+    'PREMISE' AS Table_Name, COUNT(*) AS Total_Records FROM PREMISE
 UNION ALL
 SELECT 
-    'CRIME_TYPE' AS Tabela, COUNT(*) AS Total_Registros FROM CRIME_TYPE
+    'CRIME_TYPE' AS Table_Name, COUNT(*) AS Total_Records FROM CRIME_TYPE
 UNION ALL
 SELECT 
-    'VICTIM' AS Tabela, COUNT(*) AS Total_Registros FROM VICTIM
+    'VICTIM' AS Table_Name, COUNT(*) AS Total_Records FROM VICTIM
 UNION ALL
 SELECT 
-    'LOCATION' AS Tabela, COUNT(*) AS Total_Registros FROM LOCATION;
+    'LOCATION' AS Table_Name, COUNT(*) AS Total_Records FROM LOCATION;
