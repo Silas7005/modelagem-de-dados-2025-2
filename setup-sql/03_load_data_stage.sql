@@ -6,7 +6,7 @@
 
 USE `DB_CRIMES_LA`;
 
-LOAD DATA LOCAL INFILE '/Users/marinho/Documents/Projects/ufrpe/MD/crime_from_2023_sanitized.csv'
+LOAD DATA LOCAL INFILE '/Users/marinho/Documents/Development/MD/modelagem-de-dados-2025-2/crime_from_2023_sanitized.csv'
 INTO TABLE CRIME_STAGE
 CHARACTER SET utf8mb4
 FIELDS TERMINATED BY ',' 

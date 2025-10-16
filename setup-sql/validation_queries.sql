@@ -1,5 +1,5 @@
 -- ============================================
--- Script 05: Validation Queries
+-- Script 06: Validation Queries
 -- ============================================
 -- This script contains queries to validate data integrity
 -- after populating the database

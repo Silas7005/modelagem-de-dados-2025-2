@@ -1,5 +1,5 @@
 -- ============================================
--- Script 03: Populate Dimension Tables
+-- Script 04: Populate Dimension Tables
 -- ============================================
 -- This script populates the dimension tables (lookup tables)
 -- from the CRIME_STAGE table data
@@ -10,7 +10,6 @@ USE `DB_CRIMES_LA`;
 -- ============================================
 -- 1. Populate STATUS table
 -- ============================================
--- ✅ FIXED: Insert valid statuses
 INSERT IGNORE INTO STATUS (Status, Status_Desc)
 SELECT DISTINCT 
     Status,
@@ -19,7 +18,6 @@ FROM CRIME_STAGE
 WHERE Status IS NOT NULL 
   AND Status != '';
 
--- ✅ FIXED: Insert default status for empty/NULL values
 INSERT IGNORE INTO STATUS (Status, Status_Desc)
 VALUES ('UN', 'Unknown/Empty Status');
 
@@ -28,7 +26,6 @@ SELECT CONCAT('STATUS: ', COUNT(*), ' records inserted') AS Result FROM STATUS;
 -- ============================================
 -- 2. Populate WEAPON table
 -- ============================================
--- ✅ FIXED: Convert VARCHAR → DECIMAL → INT
 INSERT IGNORE INTO WEAPON (Weapon_Used_Cd, Weapon_Desc)
 SELECT DISTINCT 
     CAST(CAST(NULLIF(Weapon_Used_Cd, '') AS DECIMAL(10,1)) AS SIGNED),
@@ -43,7 +40,6 @@ SELECT CONCAT('WEAPON: ', COUNT(*), ' records inserted') AS Result FROM WEAPON;
 -- ============================================
 -- 3. Populate LOCATION_TYPE table
 -- ============================================
--- KEEP DECIMAL: Location_Type_Cd accepts values like 104.5
 INSERT IGNORE INTO LOCATION_TYPE (Location_Type_Cd, Location_Type_Desc)
 SELECT DISTINCT 
     CAST(NULLIF(Location_Type_Cd, '') AS DECIMAL(5,1)),
@@ -58,7 +54,6 @@ SELECT CONCAT('LOCATION_TYPE: ', COUNT(*), ' records inserted') AS Result FROM L
 -- ============================================
 -- 4. Populate CRIME_TYPE table
 -- ============================================
--- First, insert the main crime
 INSERT IGNORE INTO CRIME_TYPE (Crm_Cd, Crm_Cd_Desc, Part_1_2)
 SELECT DISTINCT 
     Crm_Cd,
@@ -67,7 +62,6 @@ SELECT DISTINCT
 FROM CRIME_STAGE
 WHERE Crm_Cd IS NOT NULL AND Crm_Cd != 0;
 
--- ✅ FIXED: Insert additional crimes (Crm_Cd_1)
 INSERT IGNORE INTO CRIME_TYPE (Crm_Cd, Crm_Cd_Desc, Part_1_2)
 SELECT DISTINCT 
     CAST(CAST(NULLIF(Crm_Cd_1, '') AS DECIMAL(10,1)) AS SIGNED),
@@ -78,7 +72,6 @@ WHERE Crm_Cd_1 IS NOT NULL
   AND Crm_Cd_1 != ''
   AND CAST(NULLIF(Crm_Cd_1, '') AS DECIMAL(10,1)) != 0;
 
--- ✅ FIXED: Insert additional crimes (Crm_Cd_2)
 INSERT IGNORE INTO CRIME_TYPE (Crm_Cd, Crm_Cd_Desc, Part_1_2)
 SELECT DISTINCT 
     CAST(CAST(NULLIF(Crm_Cd_2, '') AS DECIMAL(10,1)) AS SIGNED),
@@ -89,7 +82,6 @@ WHERE Crm_Cd_2 IS NOT NULL
   AND Crm_Cd_2 != ''
   AND CAST(NULLIF(Crm_Cd_2, '') AS DECIMAL(10,1)) != 0;
 
--- ✅ FIXED: Insert additional crimes (Crm_Cd_3)
 INSERT IGNORE INTO CRIME_TYPE (Crm_Cd, Crm_Cd_Desc, Part_1_2)
 SELECT DISTINCT 
     CAST(CAST(NULLIF(Crm_Cd_3, '') AS DECIMAL(10,1)) AS SIGNED),
@@ -100,7 +92,6 @@ WHERE Crm_Cd_3 IS NOT NULL
   AND Crm_Cd_3 != ''
   AND CAST(NULLIF(Crm_Cd_3, '') AS DECIMAL(10,1)) != 0;
 
--- ✅ FIXED: Insert additional crimes (Crm_Cd_4)
 INSERT IGNORE INTO CRIME_TYPE (Crm_Cd, Crm_Cd_Desc, Part_1_2)
 SELECT DISTINCT 
     CAST(CAST(NULLIF(Crm_Cd_4, '') AS DECIMAL(10,1)) AS SIGNED),
@@ -116,7 +107,6 @@ SELECT CONCAT('CRIME_TYPE: ', COUNT(*), ' records inserted') AS Result FROM CRIM
 -- ============================================
 -- 5. Populate VICTIM table
 -- ============================================
--- ✅ FIXED: Insert unique victims
 INSERT INTO VICTIM (Vict_Age, Vict_Sex, Vict_Descent)
 SELECT DISTINCT 
     CASE 

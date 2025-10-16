@@ -1,5 +1,5 @@
 -- ============================================
--- Script 04: Populate CRIME Fact Table
+-- Script 05: Populate CRIME Fact Table
 -- ============================================
 -- This script populates the main CRIME table and its
 -- relationship tables
@@ -10,7 +10,6 @@ USE `DB_CRIMES_LA`;
 -- ============================================
 -- 1. Populate CRIME table
 -- ============================================
--- ✅ FIXED: Use INSERT IGNORE to avoid duplicate key errors
 INSERT IGNORE INTO CRIME (
     DR_NO,
     Date_Rptd,
@@ -27,12 +26,12 @@ SELECT DISTINCT
     STR_TO_DATE(s.DATE_OCC, '%m/%d/%Y %h:%i:%s %p'),
     SEC_TO_TIME(CAST(s.TIME_OCC AS UNSIGNED) * 60),
     NULLIF(s.Mocodes, ''),
-    -- ✅ FIXED: Status_FK - only insert if exists in STATUS table
+    
     CASE 
         WHEN s.Status IS NULL OR s.Status = '' THEN 'UN'  -- Default status for unknown/empty
         ELSE s.Status
     END,
-    -- ✅ FIXED: Weapon_Used_Cd (INT) - double CAST
+    
     CASE 
         WHEN s.Weapon_Used_Cd = '' OR s.Weapon_Used_Cd IS NULL OR CAST(s.Weapon_Used_Cd AS DECIMAL) = 0 
         THEN NULL
@@ -45,7 +44,7 @@ SELECT DISTINCT
         ELSE CAST(s.Location_Type_Cd AS DECIMAL(5,1))
     END
 FROM CRIME_STAGE s
--- ✅ FIXED: Ensure we only insert Status that exists in STATUS table
+
 WHERE EXISTS (
     SELECT 1 FROM STATUS st 
     WHERE st.Status = CASE 
@@ -59,7 +58,7 @@ SELECT CONCAT('CRIME: ', COUNT(*), ' records inserted') AS Result FROM CRIME;
 -- ============================================
 -- 2. Populate CRIME_CODE table
 -- ============================================
--- ✅ FIXED: Insert main crime code - only for DR_NO that exists in CRIME table
+
 INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK, Seq)
 SELECT 
     s.DR_NO,
@@ -69,7 +68,7 @@ FROM CRIME_STAGE s
 WHERE s.Crm_Cd IS NOT NULL AND s.Crm_Cd != 0
   AND EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO);
 
--- ✅ FIXED: Insert additional crime code 1 - only for DR_NO that exists in CRIME table
+
 INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK, Seq)
 SELECT 
     s.DR_NO,
@@ -82,7 +81,7 @@ WHERE s.Crm_Cd_1 IS NOT NULL
   AND EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO)
 ON DUPLICATE KEY UPDATE Seq = VALUES(Seq);
 
--- ✅ FIXED: Insert additional crime code 2 - only for DR_NO that exists in CRIME table
+
 INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK, Seq)
 SELECT 
     s.DR_NO,
@@ -95,7 +94,7 @@ WHERE s.Crm_Cd_2 IS NOT NULL
   AND EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO)
 ON DUPLICATE KEY UPDATE Seq = VALUES(Seq);
 
--- ✅ FIXED: Insert additional crime code 3 - only for DR_NO that exists in CRIME table
+
 INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK, Seq)
 SELECT 
     s.DR_NO,
@@ -108,7 +107,7 @@ WHERE s.Crm_Cd_3 IS NOT NULL
   AND EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO)
 ON DUPLICATE KEY UPDATE Seq = VALUES(Seq);
 
--- ✅ FIXED: Insert additional crime code 4 - only for DR_NO that exists in CRIME table
+
 INSERT INTO CRIME_CODE (DR_NO_FK, Crm_Cd_FK, Seq)
 SELECT 
     s.DR_NO,
@@ -126,7 +125,7 @@ SELECT CONCAT('CRIME_CODE: ', COUNT(*), ' records inserted') AS Result FROM CRIM
 -- ============================================
 -- 3. Populate CRIME_VICTIM table
 -- ============================================
--- ✅ FIXED: JOIN with double CAST for Vict_Age - only for DR_NO that exists in CRIME table
+
 INSERT INTO CRIME_VICTIM (DR_NO_FK, Victim_ID_FK)
 SELECT 
     s.DR_NO,
@@ -144,7 +143,7 @@ SELECT CONCAT('CRIME_VICTIM: ', COUNT(*), ' records inserted') AS Result FROM CR
 -- ============================================
 -- 4. Populate CRIME_LOCATION table
 -- ============================================
--- ✅ FIXED: Populate CRIME_LOCATION table - only for DR_NO that exists in CRIME table
+
 INSERT INTO CRIME_LOCATION (DR_NO_FK, Location_ID_FK, Seq)
 SELECT 
     s.DR_NO,
