@@ -132,9 +132,15 @@ SELECT
     v.Victim_ID
 FROM CRIME_STAGE s
 INNER JOIN VICTIM v ON (
-    (v.Vict_Age = CAST(CAST(s.Vict_Age AS DECIMAL(10,1)) AS SIGNED) OR (v.Vict_Age IS NULL AND (s.Vict_Age = '' OR s.Vict_Age IS NULL)))
-    AND (v.Vict_Sex = s.Vict_Sex OR (v.Vict_Sex IS NULL AND (s.Vict_Sex = '' OR s.Vict_Sex IS NULL)))
-    AND (v.Vict_Descent = s.Vict_Descent OR (v.Vict_Descent IS NULL AND (s.Vict_Descent = '' OR s.Vict_Descent IS NULL)))
+    -- Handle age matching: both NULL or both same value
+    ((v.Vict_Age IS NULL AND (s.Vict_Age = '' OR s.Vict_Age IS NULL)) 
+     OR (v.Vict_Age IS NOT NULL AND s.Vict_Age != '' AND s.Vict_Age IS NOT NULL AND v.Vict_Age = CAST(CAST(s.Vict_Age AS DECIMAL(10,1)) AS SIGNED)))
+    -- Handle sex matching: both NULL or both same value  
+    AND ((v.Vict_Sex IS NULL AND (s.Vict_Sex = '' OR s.Vict_Sex IS NULL))
+         OR (v.Vict_Sex IS NOT NULL AND s.Vict_Sex != '' AND s.Vict_Sex IS NOT NULL AND v.Vict_Sex = s.Vict_Sex))
+    -- Handle descent matching: both NULL or both same value
+    AND ((v.Vict_Descent IS NULL AND (s.Vict_Descent = '' OR s.Vict_Descent IS NULL))
+         OR (v.Vict_Descent IS NOT NULL AND s.Vict_Descent != '' AND s.Vict_Descent IS NOT NULL AND v.Vict_Descent = s.Vict_Descent))
 )
 WHERE EXISTS (SELECT 1 FROM CRIME c WHERE c.DR_NO = s.DR_NO);
 
