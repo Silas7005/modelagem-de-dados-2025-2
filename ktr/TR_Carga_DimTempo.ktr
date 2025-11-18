@@ -601,8 +601,12 @@ var Dia_da_Semana = nomesDia[jsDate.getDay()];
 var Trimestre = Math.floor((Mes - 1) / 3) + 1;
 var Semestre = (Mes &lt;= 6) ? 1 : 2;
 
-// Extrai a hora
-var Hora_do_Dia = TIME_OCC.getHours();
+// Extrai a hora do TIME_OCC (que agora é uma string no formato "HH:MM:SS" ou "HHH:MM:SS")
+// Para durações maiores que 24h, pegamos apenas a parte da hora do dia (módulo 24)
+var timeStr = String(TIME_OCC);
+var timeParts = timeStr.split(':');
+var horasTotais = parseInt(timeParts[0], 10);
+var Hora_do_Dia = horasTotais % 24; // Módulo 24 para obter a hora do dia (0-23)
 
 // Calcula o período
 var Periodo_do_Dia;
@@ -711,7 +715,7 @@ if (Hora_do_Dia &lt; 6) {
     <connection>Fonte_Crimes_Normalizado</connection>
     <sql>SELECT DISTINCT
     DATE(DATE_OCC) AS Data_Completa,
-    SEC_TO_TIME(FLOOR(TIME_TO_SEC(TIME_OCC) / 60) * 60) AS TIME_OCC
+    CAST(SEC_TO_TIME(FLOOR(TIME_TO_SEC(TIME_OCC) / 60) * 60) AS CHAR) AS TIME_OCC
 FROM DB_CRIMES_LA.CRIME
 WHERE DATE_OCC IS NOT NULL 
   AND TIME_OCC IS NOT NULL</sql>
@@ -746,10 +750,10 @@ WHERE DATE_OCC IS NOT NULL
         <lenient_string_to_number>N</lenient_string_to_number>
       </value-meta>
       <value-meta>
-        <type>Date</type>
+        <type>String</type>
         <storagetype>normal</storagetype>
         <name>TIME_OCC</name>
-        <length>-1</length>
+        <length>20</length>
         <precision>-1</precision>
         <origin>Table input</origin>
         <comments>TIME_OCC</comments>
