@@ -585,8 +585,47 @@
         <jsScript_type>0</jsScript_type>
         <jsScript_name>Script 1</jsScript_name>
         <jsScript_script>
-// CRÍTICO: Converter o campo de String do Pentaho para um objeto Date do JavaScript
-var jsDate = new Date(Data_Completa);
+// CRÍTICO: Converter o campo Date do Pentaho (objeto Java Date) para um objeto Date do JavaScript
+var jsDate;
+
+if (Data_Completa != null) {
+  // Tenta usar getTime() se disponível (objeto Java Date do Pentaho)
+  if (typeof Data_Completa.getTime === 'function') {
+    var timestamp = Data_Completa.getTime();
+    jsDate = new Date(timestamp);
+  }
+  // Se for string, tenta parse
+  else if (typeof Data_Completa === 'string') {
+    jsDate = new Date(Data_Completa);
+  }
+  // Se já for Date do JavaScript
+  else if (Data_Completa instanceof Date) {
+    jsDate = Data_Completa;
+  }
+  // Fallback: converte para string e depois para Date
+  else {
+    var dataStr = String(Data_Completa);
+    // Tenta formato YYYY-MM-DD
+    if (dataStr.match(/^\d{4}-\d{2}-\d{2}/)) {
+      var parts = dataStr.split(/[-T\s]/);
+      if (parts.length >= 3) {
+        jsDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      } else {
+        jsDate = new Date(dataStr);
+      }
+    } else {
+      jsDate = new Date(dataStr);
+    }
+  }
+  
+  // Valida se a data é válida
+  if (isNaN(jsDate.getTime())) {
+    // Se falhar, tenta usar o valor diretamente como timestamp
+    jsDate = new Date(Data_Completa);
+  }
+} else {
+  jsDate = new Date(); // Fallback
+}
 
 // Arrays para os nomes
 var nomesMes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
@@ -594,7 +633,7 @@ var nomesDia = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Qui
 
 // Extrai os valores do objeto 'jsDate'
 var Ano = jsDate.getFullYear();
-var Mes = jsDate.getMonth() + 1; // JS o mês é 0-11
+var Mes = jsDate.getMonth() + 1; // JS o mês é 0-11, então adiciona 1
 var Nome_Mes = nomesMes[jsDate.getMonth()];
 var Dia = jsDate.getDate();
 var Dia_da_Semana = nomesDia[jsDate.getDay()];
