@@ -1118,6 +1118,12 @@ var lookup_DR_NO = DR_NO;
       <field>
         <name>Qtde_Ocorrencias</name>
       </field>
+      <field>
+        <name>Qtde_MO_Codes</name>
+      </field>
+      <field>
+        <name>Tempo_Resposta_Horas</name>
+      </field>
       <select_unspecified>N</select_unspecified>
     </fields>
     <attributes/>
@@ -1154,13 +1160,20 @@ var lookup_DR_NO = DR_NO;
     c.Status_FK, 
     cl.Location_ID_FK, 
     c.Weapon_Used_Cd_FK, 
-    c.Location_Type_Cd_FK
+    c.Location_Type_Cd_FK,
+    COALESCE(mo_count.Qtde_MO_Codes, 0) AS Qtde_MO_Codes,
+    COALESCE(TIMESTAMPDIFF(HOUR, c.DATE_OCC, c.Date_Rptd), 0) AS Tempo_Resposta_Horas
 FROM 
     DB_CRIMES_LA.CRIME_CODE AS cc
 JOIN 
     DB_CRIMES_LA.CRIME AS c ON cc.DR_NO_FK = c.DR_NO
 LEFT JOIN 
     DB_CRIMES_LA.CRIME_LOCATION AS cl ON c.DR_NO = cl.DR_NO_FK AND cl.Seq = 1
+LEFT JOIN (
+    SELECT DR_NO_FK, COUNT(*) AS Qtde_MO_Codes
+    FROM DB_CRIMES_LA.CRIME_MOCODE
+    GROUP BY DR_NO_FK
+) AS mo_count ON c.DR_NO = mo_count.DR_NO_FK
 WHERE 
     c.DATE_OCC IS NOT NULL 
     AND c.TIME_OCC IS NOT NULL
@@ -1356,6 +1369,52 @@ WHERE
         <date_format_timezone>America/Sao_Paulo</date_format_timezone>
         <lenient_string_to_number>N</lenient_string_to_number>
       </value-meta>
+      <value-meta>
+        <type>Integer</type>
+        <storagetype>normal</storagetype>
+        <name>Qtde_MO_Codes</name>
+        <length>9</length>
+        <precision>0</precision>
+        <origin>Table input</origin>
+        <comments>Qtde_MO_Codes</comments>
+        <conversion_Mask>####0;-####0</conversion_Mask>
+        <decimal_symbol>.</decimal_symbol>
+        <grouping_symbol>,</grouping_symbol>
+        <currency_symbol/>
+        <trim_type>none</trim_type>
+        <case_insensitive>N</case_insensitive>
+        <collator_disabled>Y</collator_disabled>
+        <collator_strength>0</collator_strength>
+        <sort_descending>N</sort_descending>
+        <output_padding>N</output_padding>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale>en_US</date_format_locale>
+        <date_format_timezone>America/Sao_Paulo</date_format_timezone>
+        <lenient_string_to_number>N</lenient_string_to_number>
+      </value-meta>
+      <value-meta>
+        <type>Integer</type>
+        <storagetype>normal</storagetype>
+        <name>Tempo_Resposta_Horas</name>
+        <length>9</length>
+        <precision>0</precision>
+        <origin>Table input</origin>
+        <comments>Tempo_Resposta_Horas</comments>
+        <conversion_Mask>####0;-####0</conversion_Mask>
+        <decimal_symbol>.</decimal_symbol>
+        <grouping_symbol>,</grouping_symbol>
+        <currency_symbol/>
+        <trim_type>none</trim_type>
+        <case_insensitive>N</case_insensitive>
+        <collator_disabled>Y</collator_disabled>
+        <collator_strength>0</collator_strength>
+        <sort_descending>N</sort_descending>
+        <output_padding>N</output_padding>
+        <date_format_lenient>N</date_format_lenient>
+        <date_format_locale>en_US</date_format_locale>
+        <date_format_timezone>America/Sao_Paulo</date_format_timezone>
+        <lenient_string_to_number>N</lenient_string_to_number>
+      </value-meta>
     </row-meta>
     <attributes/>
     <cluster_schema/>
@@ -1435,6 +1494,14 @@ WHERE
       <field>
         <column_name>Qtde_Ocorrencias</column_name>
         <stream_name>Qtde_Ocorrencias</stream_name>
+      </field>
+      <field>
+        <column_name>Qtde_MO_Codes</column_name>
+        <stream_name>Qtde_MO_Codes</stream_name>
+      </field>
+      <field>
+        <column_name>Tempo_Resposta_Horas</column_name>
+        <stream_name>Tempo_Resposta_Horas</stream_name>
       </field>
     </fields>
     <attributes/>
